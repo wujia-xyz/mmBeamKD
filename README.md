@@ -75,18 +75,6 @@ python analysis_val_test_shift.py      # Distribution shift analysis
 
 The full paper draft is in `paper/main.pdf`. Figures can be regenerated with `paper/figures/gen_all_figs.py`.
 
-## Citation
-
-```bibtex
-@article{xie2026mmBeamKD,
-  title   = {Parameter-Efficient Multimodal Beam Prediction for Vehicular mmWave
-             Communications: A Scenario-32 Case Study with Knowledge Distillation},
-  author  = {Xie, Xin and Wu, Jia},
-  journal = {IEEE Transactions on Wireless Communications},
-  year    = {2026}
-}
-```
-
 ## Acknowledgment
 
 This work was supported in part by the Sichuan Natural Science Foundation under Grant 2026NSFSC0580.
