@@ -1,6 +1,6 @@
 # mmBeamKD: Parameter-Efficient Multimodal Beam Prediction via Cross-Modal Knowledge Distillation
 
-> **Paper**: *Parameter-Efficient Multimodal Beam Prediction for Vehicular mmWave Communications: A Scenario-32 Case Study with Knowledge Distillation*
+> **Paper**: *mmBeamKD: Parameter-Efficient Multimodal Beam Prediction via Cross-Modal Knowledge Distillation*
 >
 > Xin Xie, Jia Wu*
 
