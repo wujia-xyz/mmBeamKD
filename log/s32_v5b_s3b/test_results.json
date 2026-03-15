@@ -1,0 +1,12 @@
+{
+  "best_test_top1": 34.4882,
+  "best_test_top2": 59.8425,
+  "best_test_top3": 71.6535,
+  "best_test_DBA": 0.7970603674540683,
+  "best_val_DBA": 0.8628871391076113,
+  "best_val_epoch": 67,
+  "swa_test_top1": 33.5433,
+  "swa_test_top2": 60.315,
+  "swa_test_top3": 72.2835,
+  "swa_test_DBA": 0.8015748031496064
+}

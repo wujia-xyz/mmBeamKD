@@ -1,0 +1,43 @@
+# Model checkpoints (too large for git)
+log/s32_*/best_model.pth
+log/s32_*/best_optim.pth
+log/s32_*/final_model.pth
+log/s32_*/*.pth
+
+# Large cache files
+log/*.npz
+log/s32_train.log
+
+# Dataset (not included)
+Dataset/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+
+# LaTeX build artifacts
+paper/*.aux
+paper/*.bbl
+paper/*.blg
+paper/*.log
+paper/*.out
+paper/*.fls
+paper/*.fdb_latexmk
+paper/texput.log
+
+# TikZ build artifacts
+paper/figures/*.aux
+paper/figures/*.log
+
+# Jupyter
+.ipynb_checkpoints/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/settings.json
+.idea/

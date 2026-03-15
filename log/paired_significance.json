@@ -1,0 +1,28 @@
+{
+  "distill_vs_baseline": {
+    "delta_mean": 0.021032713910760937,
+    "delta_CI_lo": 0.010181102362204401,
+    "delta_CI_hi": 0.0320236220472439,
+    "p_value": 0.0002,
+    "significant_at_0.05": true
+  },
+  "v5b_vs_baseline": {
+    "delta_mean": -0.0016985616797901726,
+    "delta_CI_lo": -0.014593175853018564,
+    "delta_CI_hi": 0.011341207349081112,
+    "p_value": 0.6006,
+    "significant_at_0.05": false
+  },
+  "ensemble_vs_baseline": {
+    "delta_mean": 0.027804472440944618,
+    "delta_CI_lo": 0.016902887139107366,
+    "delta_CI_hi": 0.038845144356955075,
+    "p_value": 0.0,
+    "significant_at_0.05": true
+  },
+  "checkpoint_sizes_MB": {
+    "baseline": 299.6624450683594,
+    "v5b": 213.51970767974854,
+    "distilled": 213.51970767974854
+  }
+}

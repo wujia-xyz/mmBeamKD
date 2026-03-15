@@ -1,0 +1,88 @@
+% Fig 1: Scenario-32 Task Schematic — IEEE TWC compliant
+% Font: \normalsize=9pt (matches standalone 10pt base)
+% No internal title
+\documentclass[tikz,border=8pt,10pt]{standalone}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,shapes.geometric,fit,backgrounds}
+\usepackage{xcolor}
+\usepackage{amsmath}
+
+\definecolor{camcol}{RGB}{33,150,243}
+\definecolor{lidcol}{RGB}{76,175,80}
+\definecolor{radcol}{RGB}{255,152,0}
+\definecolor{gpscol}{RGB}{156,39,176}
+\definecolor{fusecol}{RGB}{244,67,54}
+\definecolor{beamcol}{RGB}{96,125,139}
+
+\begin{document}
+\begin{tikzpicture}[
+  % All fonts use \normalsize (9pt) or \small (8pt)
+  box/.style={draw, rounded corners=3pt, minimum width=2.0cm, minimum height=0.75cm,
+              font=\normalsize, align=center, line width=0.6pt},
+  sensor/.style={box, fill=#1!12, draw=#1!55},
+  arrow/.style={-Stealth, line width=1.0pt},
+  node distance=0.55cm and 0.8cm
+]
+
+% ── Sensor inputs ─────────────────────────────────────────────────────────────
+\node[sensor=camcol] (cam) {Camera};
+\node[sensor=lidcol, below=of cam] (lid) {LiDAR};
+\node[sensor=radcol, below=of lid] (rad) {Radar};
+\node[sensor=gpscol, below=of rad] (gps) {GPS $(v_x,v_y)$};
+
+% Group box
+\begin{scope}[on background layer]
+  \node[draw=gray!45, dashed, rounded corners=6pt, line width=0.8pt,
+        fit=(cam)(gps), inner sep=6pt,
+        label={[font=\normalsize\bfseries]above:Vehicle (UE)}] (vehicle) {};
+\end{scope}
+
+% ── Temporal window ───────────────────────────────────────────────────────────
+\node[box, right=1.6cm of vehicle.east, minimum width=2.6cm, minimum height=3.0cm,
+      label={[font=\normalsize]above:$T\!=\!5$ frames}] (window) {};
+\foreach \k in {1,...,5}{%
+  \fill[blue!30!white, opacity=0.45]
+    ($(window.west)+(0.12+(\k-1)*0.45, -0.55)$) rectangle ++(0.38, 1.10);
+}
+\node[font=\small, below=0.08cm of window] {Temporal window $\mathbf{X}$};
+
+% ── Model block ───────────────────────────────────────────────────────────────
+\node[box, fill=fusecol!12, draw=fusecol!60, right=1.4cm of window,
+      minimum height=2.2cm, minimum width=2.3cm, font=\normalsize\bfseries] (model)
+  {\textsc{TransFuser}\\\textsc{V5}\\{\small 21.7M params}};
+
+% ── Output logits ─────────────────────────────────────────────────────────────
+\node[box, fill=beamcol!12, draw=beamcol!60, right=1.3cm of model,
+      minimum height=1.6cm, minimum width=2.0cm] (logits)
+  {64-class\\beam logits};
+
+\node[box, fill=green!18, draw=green!55, right=1.0cm of logits,
+      minimum height=0.80cm, minimum width=1.5cm, font=\normalsize\bfseries] (pred)
+  {$\hat{b}^{(1:K)}$};
+
+% ── Base station ──────────────────────────────────────────────────────────────
+\node[box, fill=orange!18, draw=orange!60, above=1.6cm of pred,
+      minimum width=1.8cm, minimum height=0.75cm] (bs)
+  {BS (60 GHz)};
+
+% ── DBA definition ────────────────────────────────────────────────────────────
+\node[box, fill=gray!8, draw=gray!40, below=1.0cm of logits,
+      minimum width=7.2cm, minimum height=0.80cm, font=\small] (dba)
+  {DBA $= \tfrac{1}{K}\!\sum_{k=1}^{K}\!\bigl(1-\tfrac{1}{n}\!\sum_i
+   \min\!\bigl(\tfrac{|\hat{b}^{(k)}_i-b^*_i|}{\delta},1\bigr)\bigr)$,\quad
+   $\delta\!=\!5$,\; $K\!=\!3$};
+
+% ── Arrows ────────────────────────────────────────────────────────────────────
+\draw[arrow, color=camcol!80] (cam.east) -- (window.west |- cam);
+\draw[arrow, color=lidcol!80] (lid.east) -- (window.west |- lid);
+\draw[arrow, color=radcol!80] (rad.east) -- (window.west |- rad);
+\draw[arrow, color=gpscol!80] (gps.east) -- (window.west |- gps);
+\draw[arrow] (window.east) -- (model.west);
+\draw[arrow] (model.east) -- (logits.west);
+\draw[arrow] (logits.east) -- node[above, font=\small]{top-$K$} (pred.west);
+\draw[arrow, dashed, color=orange!75] (pred.north) --
+      node[right, font=\small]{beam select} (bs.south);
+\draw[->, gray!55, dashed, line width=0.6pt] (logits.south) -- (dba.north);
+
+\end{tikzpicture}
+\end{document}

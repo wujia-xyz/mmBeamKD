@@ -1,0 +1,8 @@
+{
+  "best_test_top1": 37.4803,
+  "best_test_top2": 59.8425,
+  "best_test_top3": 71.3386,
+  "best_test_DBA": 0.8061942257217846,
+  "best_val_DBA": 0.8555380577427818,
+  "best_val_epoch": 3
+}

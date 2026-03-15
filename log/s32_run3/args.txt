@@ -1,0 +1,21 @@
+{
+  "id": "s32_run3",
+  "epochs": 50,
+  "lr": 1e-05,
+  "batch_size": 6,
+  "logdir": "log/s32_run3",
+  "add_velocity": 1,
+  "add_mask": 0,
+  "enhanced": 1,
+  "filtered": 0,
+  "loss": "focal",
+  "scheduler": 0,
+  "load_previous_best": 0,
+  "finetune_from": "log/s32_run2/best_model.pth",
+  "temp_coef": 1,
+  "angle_norm": 1,
+  "custom_FoV_lidar": 1,
+  "add_seg": 0,
+  "ema": 0,
+  "flip": 0
+}

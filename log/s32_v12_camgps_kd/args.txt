@@ -1,0 +1,16 @@
+{
+  "id": "s32_v12_camgps_kd",
+  "epochs": 60,
+  "lr": 0.0003,
+  "batch_size": 6,
+  "logdir": "log/s32_v12_camgps_kd",
+  "patience": 20,
+  "kd_temp": 4.0,
+  "kd_weight": 0.7,
+  "ordinal_weight": 0.5,
+  "seed": 99,
+  "add_velocity": 1,
+  "enhanced": 1,
+  "angle_norm": 1,
+  "custom_FoV_lidar": 1
+}

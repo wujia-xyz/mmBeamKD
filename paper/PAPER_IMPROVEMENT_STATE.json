@@ -1,0 +1,9 @@
+{
+  "current_round": 2,
+  "threadId": "019cf085-7f7c-77d1-9394-b39edc7414c5",
+  "last_score": 6,
+  "status": "completed",
+  "timestamp": "2026-03-15T22:00:00",
+  "camgps_kd_training": "in_progress",
+  "camgps_kd_logdir": "log/s32_v12_camgps_kd"
+}

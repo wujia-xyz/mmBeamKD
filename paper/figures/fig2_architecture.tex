@@ -1,0 +1,104 @@
+% Fig 2: TransFuserV5 Architecture Diagram
+% Compile standalone: pdflatex fig2_architecture.tex
+\documentclass[tikz,border=4pt]{standalone}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,shapes.geometric,fit,backgrounds,matrix}
+\usepackage{xcolor}
+
+\definecolor{frozen}{RGB}{189,189,189}
+\definecolor{trainable}{RGB}{33,150,243}
+\definecolor{gps}{RGB}{156,39,176}
+\definecolor{fusion}{RGB}{244,67,54}
+\definecolor{gpt}{RGB}{255,152,0}
+\definecolor{head}{RGB}{76,175,80}
+
+\begin{document}
+\begin{tikzpicture}[
+  enc/.style={draw, rounded corners=3pt, minimum width=1.6cm, minimum height=0.55cm,
+              font=\scriptsize\bfseries, align=center, fill=#1!18, draw=#1!70},
+  block/.style={draw, rounded corners=3pt, minimum width=2.0cm, minimum height=0.55cm,
+                font=\scriptsize, align=center},
+  label/.style={font=\scriptsize, text=#1},
+  arrow/.style={-Stealth, thick, shorten >=1pt, shorten <=1pt},
+  >=Stealth,
+  node distance=0.55cm and 0.45cm
+]
+
+%% ── Inputs (left column) ────────────────────────────────────────────────────
+\node[enc=gray]  (cam_in) at (0,5) {Camera\\$3\times H\times W$};
+\node[enc=gray, below=of cam_in]  (lid_in) {LiDAR\\$2\times H\times W$};
+\node[enc=gray, below=of lid_in]  (rad_in) {Radar\\$2\times H\times W$};
+\node[enc=purple, below=1.0cm of rad_in] (gps_in)  {GPS\\$(v_x,v_y)$};
+
+%% ── Frozen ResNets ──────────────────────────────────────────────────────────
+\node[enc=gray, right=1.0cm of cam_in] (cam_enc) {ResNet-34\\{\tiny(frozen)}};
+\node[enc=gray, right=1.0cm of lid_in] (lid_enc) {ResNet-18\\{\tiny(frozen)}};
+\node[enc=gray, right=1.0cm of rad_in] (rad_enc) {ResNet-18\\{\tiny(frozen)}};
+\node[enc=purple, right=1.0cm of gps_in] (gps_enc) {MLP\\{\tiny(trained)}};
+
+%% ── Frozen badge ─────────────────────────────────────────────────────────────
+\node[font=\tiny, text=gray, right=0.0cm of cam_enc.east, xshift=0.05cm,
+      rotate=90, anchor=south] {};
+
+%% ── Cross-Attention Fusion (per scale) ──────────────────────────────────────
+\node[block, fill=fusion!18, draw=fusion!70, right=1.0cm of cam_enc,
+      minimum height=2.5cm, minimum width=1.8cm,
+      label={[label=fusion]above:Cross-Attn}] (xattn) at
+  ($(cam_enc)!0.5!(rad_enc) + (2.0, 0)$)
+  {Fusion\\Tokens\\\scriptsize$\times$4 scales};
+
+%% ── GPS embedding ────────────────────────────────────────────────────────────
+% (GPS feeds into the transformer block)
+
+%% ── GPT blocks ───────────────────────────────────────────────────────────────
+\node[block, fill=gpt!25, draw=gpt!80, right=1.0cm of xattn,
+      minimum height=2.5cm, minimum width=1.7cm] (gpt)
+  {GPT\\Transformer\\$\times$2 layers\\\scriptsize(trained)};
+
+%% ── Classifier head ──────────────────────────────────────────────────────────
+\node[block, fill=head!25, draw=head!70, right=1.0cm of gpt,
+      minimum height=1.4cm, minimum width=1.5cm] (head)
+  {MLP Head\\$512\to256$\\$\to128\to64$\\\scriptsize(trained)};
+
+%% ── Output ───────────────────────────────────────────────────────────────────
+\node[block, fill=green!20, draw=green!60, right=0.7cm of head,
+      minimum height=0.7cm, minimum width=1.3cm,
+      font=\scriptsize\bfseries] (out)
+  {$\hat{b}^{(1)},\ldots,\hat{b}^{(K)}$\\Beam Logits};
+
+%% ── Arrows: inputs to encoders ───────────────────────────────────────────────
+\draw[arrow] (cam_in) -- (cam_enc);
+\draw[arrow] (lid_in) -- (lid_enc);
+\draw[arrow] (rad_in) -- (rad_enc);
+\draw[arrow] (gps_in) -- (gps_enc);
+
+%% ── Encoders to cross-attention ──────────────────────────────────────────────
+\draw[arrow] (cam_enc.east) -- (xattn.north west);
+\draw[arrow] (lid_enc.east) -- (xattn.west);
+\draw[arrow] (rad_enc.east) -- (xattn.south west);
+
+%% ── Cross-attention to GPT ───────────────────────────────────────────────────
+\draw[arrow] (xattn.east) -- (gpt.west);
+\draw[arrow] (gps_enc.east) -| (gpt.south);
+
+%% ── GPT to head ──────────────────────────────────────────────────────────────
+\draw[arrow] (gpt.east) -- (head.west);
+\draw[arrow] (head.east) -- (out.west);
+
+%% ── Legend ────────────────────────────────────────────────────────────────────
+\node[enc=gray, below=1.5cm of gps_enc, minimum width=1.4cm] (leg_frz) {Frozen};
+\node[enc=purple, right=0.3cm of leg_frz, minimum width=1.4cm] (leg_gps) {GPS (trained)};
+\node[block, fill=fusion!18, draw=fusion!70, right=0.3cm of leg_gps,
+      minimum width=1.4cm] (leg_xat) {Cross-Attn};
+\node[block, fill=gpt!25, draw=gpt!80, right=0.3cm of leg_xat,
+      minimum width=1.4cm] (leg_gpt) {GPT};
+\node[block, fill=head!25, draw=head!70, right=0.3cm of leg_gpt,
+      minimum width=1.4cm] (leg_hd) {Head};
+\node[font=\scriptsize, below=0.1cm of leg_frz] {34.2M};
+\node[font=\scriptsize, below=0.1cm of leg_gps] {trainable};
+\node[font=\scriptsize, below=0.1cm of leg_xat] {trainable};
+\node[font=\scriptsize, below=0.1cm of leg_gpt] {trainable};
+\node[font=\scriptsize, below=0.1cm of leg_hd] {trainable};
+
+\end{tikzpicture}
+\end{document}

@@ -1,0 +1,30 @@
+{
+  "param_count": {
+    "baseline_total_M": 78.422528,
+    "baseline_trainable_M": 78.422528,
+    "v5b_total_M": 55.876096,
+    "v5b_trainable_M": 55.876096,
+    "trainable_reduction": 1.4035076466330074
+  },
+  "inference": {
+    "v5b": {
+      "mean_latency_ms": 19.915123169776052,
+      "p50_ms": 21.031916607171297,
+      "p95_ms": 25.071129051502794,
+      "p99_ms": 26.023834953084616,
+      "throughput_fps": 50.21309642300571,
+      "peak_gpu_mem_mb": 597.5263671875,
+      "n_samples": 100
+    },
+    "baseline": {
+      "mean_latency_ms": 33.14419319620356,
+      "p50_ms": 33.88530248776078,
+      "p95_ms": 43.09792445274069,
+      "p99_ms": 51.878035631962135,
+      "throughput_fps": 30.171197533163763,
+      "peak_gpu_mem_mb": 407.7802734375,
+      "n_samples": 100
+    }
+  },
+  "ensemble_4model_latency_ms": 79.66049267910421
+}
