@@ -2,7 +2,7 @@
 
 > **Paper**: *Parameter-Efficient Multimodal Beam Prediction for Vehicular mmWave Communications: A Scenario-32 Case Study with Knowledge Distillation*
 >
-> Xin Xie, Jia Wu* — IEEE Transactions on Wireless Communications (under review)
+> Xin Xie, Jia Wu*
 
 ---
 
@@ -83,8 +83,7 @@ The full paper draft is in `paper/main.pdf`. Figures can be regenerated with `pa
              Communications: A Scenario-32 Case Study with Knowledge Distillation},
   author  = {Xie, Xin and Wu, Jia},
   journal = {IEEE Transactions on Wireless Communications},
-  year    = {2026},
-  note    = {Under review}
+  year    = {2026}
 }
 ```
 
