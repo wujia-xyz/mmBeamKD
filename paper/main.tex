@@ -39,33 +39,34 @@ via Cross-Modal Knowledge Distillation}
 
 \begin{abstract}
 Accurate beam prediction is a key enabler of low-latency millimeter-wave (mmWave)
-vehicular communications, yet fusing heterogeneous sensors—camera,
-LiDAR, radar, and GPS—into a trainable model remains computationally expensive
-in scarce-data settings. This paper presents \ours{}, a parameter-efficient
-multimodal transformer for beam prediction in the DeepSense~6G Scenario-32
-setting (1905 training samples, 64-beam classification). By freezing pretrained
-ResNet backbones and training only a lightweight cross-attention fusion module
-with two GPT-style transformer layers, \ours{} reduces trainable parameters
-from 78.4\,M (baseline) to 21.7\,M, achieving a $1.66\times$ inference speedup
-and a 29\% smaller deployment checkpoint.
+vehicular communications, yet training multimodal fusion models remains
+computationally expensive in scarce-data settings. We present \textbf{mmBeamKD},
+a framework combining parameter-efficient multimodal fusion with cross-modal
+knowledge distillation for beam prediction on the DeepSense~6G Scenario-32
+benchmark (1905 training samples, 64-beam classification).
+\ours{} freezes pretrained ResNet backbones and trains only a lightweight
+cross-attention fusion module (21.7\,M trainable parameters vs.\ 78.4\,M
+baseline), achieving a $1.66\times$ inference speedup and a 29\% smaller
+deployment checkpoint.
 
-Modality ablation and a camera+GPS-only control model reveal that, in
-Scenario-32, the camera and GPS channels carry almost all predictive information:
-removing either collapses DBA by more than 37\%, while removing LiDAR or radar
-has negligible effect. Applying knowledge distillation from a four-model
-heterogeneous teacher ensemble yields a single student model—\distill{}—that
-significantly improves DBA from 0.8076 (baseline) to 0.8285
-($+0.021$; 95\,\% CI: $[+0.010,\,+0.032]$; $p=0.0002$). A
-probability-space ensemble of \distill{} with two complementary models
-further raises DBA to 0.8353 ($+0.028$; $p < 0.0001$). Per-beam analysis
-exposes a systematic accuracy gap for high-index beams (DBA\,=\,0.694,
-beams 43--63), linked to a training-to-test beam-distribution shift.
+Modality ablation reveals that camera and GPS dominate in Scenario-32:
+removing either collapses DBA by more than 37\%, while LiDAR and radar
+contribute negligibly. Building on this finding, we apply cross-modal
+knowledge distillation from a four-model heterogeneous teacher ensemble
+to a camera+GPS-only student (\textsc{CamGPS-only-KD}), which achieves
+DBA\,=\,0.8356 ($+0.028$ vs.\ baseline; 95\,\% CI: $[+0.017,\,+0.040]$;
+$p < 0.0001$) at 19.9\,ms inference---matching the full three-model ensemble
+while requiring only two sensors. A four-modality distilled student (\distill{})
+achieves DBA\,=\,0.8285 ($+0.021$; $p=0.0002$). Per-beam analysis exposes a
+systematic accuracy gap for high-index beams (DBA\,=\,0.694, beams 43--63),
+linked to a training-to-test beam-distribution shift.
 All comparisons are supported by paired bootstrap significance testing.
 \end{abstract}
 
 \begin{IEEEkeywords}
 mmWave beam prediction, multimodal sensing, vehicular communications,
-knowledge distillation, parameter-efficient learning, distribution shift
+knowledge distillation, cross-modal distillation, parameter-efficient learning,
+distribution shift
 \end{IEEEkeywords}
 
 % ─────────────────────────────────────────────────────────────────────────────
