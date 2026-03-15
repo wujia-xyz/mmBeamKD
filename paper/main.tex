@@ -55,7 +55,7 @@ contribute negligibly. Building on this finding, we apply cross-modal
 knowledge distillation from a four-model heterogeneous teacher ensemble
 to a camera+GPS-only student (\textsc{CamGPS-only-KD}), which achieves
 DBA\,=\,0.8356 ($+0.028$ vs.\ baseline; 95\,\% CI: $[+0.017,\,+0.040]$;
-$p < 0.0001$) at 19.9\,ms inference---matching the full three-model ensemble
+$p < 0.0001$) at 19.9\,ms inference, matching the full three-model ensemble
 while requiring only two sensors. A four-modality distilled student (\distill{})
 achieves DBA\,=\,0.8285 ($+0.021$; $p=0.0002$). Per-beam analysis exposes a
 systematic accuracy gap for high-index beams (DBA\,=\,0.694, beams 43--63),
@@ -91,8 +91,7 @@ measurements with ground-truth beam labels across 32 deployment scenarios.
 
 Despite strong empirical results on this benchmark, existing approaches leave
 three practical gaps. First, they rely on large, fully trainable fusion networks
-that overfit when only a few thousand labeled samples are available---a common
-constraint in freshly deployed vehicular sites. Second, they rarely examine
+that overfit when only a few thousand labeled samples are available, a constraint common to freshly deployed vehicular sites. Second, they rarely examine
 \emph{which sensors actually drive performance}: a model trained with four
 modalities may rely primarily on one, making the additional hardware a wasted
 investment. Third, evaluations typically lack statistical rigor; performance
@@ -105,12 +104,11 @@ study rather than a claim of universal superiority. We include explicit
 out-of-scope warnings throughout and discuss multi-scenario generalization
 as future work. The value of the case study lies in (i) establishing the
 first statistically significant single-model DBA improvement on this benchmark,
-(ii) a controlled sensor-attribution analysis, and (iii) methodology---bootstrap
-testing, distribution-shift analysis, and a beam-probing overhead metric---
-that transfers to other scenarios.
+(ii) a controlled sensor-attribution analysis, and (iii) a methodology including bootstrap
+testing, distribution-shift analysis, and a beam-probing overhead metric, all of which transfer to other scenarios.
 
 This paper presents \textbf{mmBeamKD}, which addresses all three gaps on
-DeepSense~6G Scenario~32---a single urban intersection site with 1905 training,
+DeepSense~6G Scenario~32, a single urban intersection site with 1905 training,
 635 validation, and 635 test sequences.
 mmBeamKD comprises two stages: (i)~\ours{}, a parameter-efficient fusion backbone
 that replaces the baseline's eight-layer GPT transformer with a compact two-layer
@@ -121,8 +119,7 @@ four-model ensemble teacher, yielding both a four-modality student (\distill{})
 and a camera+GPS-only student (\textsc{CamGPS-only-KD}) that matches the full
 ensemble at 19.9~ms. Modality ablation reveals an unexpected finding: in
 Scenario~32, \emph{camera and GPS are nearly sufficient for full performance},
-while LiDAR and radar contribute negligibly---a result that cross-modal KD
-exploits directly.
+while LiDAR and radar contribute negligibly; cross-modal KD exploits this finding directly.
 
 The contributions of this paper are as follows:
 
@@ -138,7 +135,7 @@ The contributions of this paper are as follows:
     student (\distill{}) improves DBA by $+0.021$ over the baseline
     (95\,\% CI: $[+0.010,\,+0.032]$; $p=0.0002$), representing a
     statistically significant and practically meaningful single-model
-    gain on this benchmark---to the best of our knowledge, the first such
+    gain on this benchmark; to the best of our knowledge the first such
     rigorously tested gain reported for Scenario~32.
 
 \item \textbf{Camera+GPS modality dominance analysis.}
@@ -182,7 +179,7 @@ Learning-based beam prediction \cite{alkhateeb2018deep,Wang2018,Xu2021deep}
 circumvents the sweep by directly mapping received signals or side information
 to a beam index. These approaches demonstrate that beam prediction can match or
 exceed the link quality of exhaustive scanning while operating at dramatically
-lower overhead---a prerequisite for vehicular latency targets.
+lower overhead, which is a prerequisite for vehicular latency targets.
 
 \paragraph{Sensing-aided and multimodal beam prediction.}
 The key observation that out-of-band sensing modalities carry geometry
@@ -342,8 +339,7 @@ linearly with beam offset up to zero at offset $\delta$.
 Under this approximation, $\mathrm{DBA} = E[G_{\mathrm{norm}}^{(K)}]$,
 where the expectation is over test samples and $K=3$ candidates.
 A DBA of 0.8285 for \distill{} therefore implies that the expected normalized
-beamforming gain retained by the model is 82.9\% of the oracle gain---versus
-80.8\% for the baseline.
+beamforming gain retained by the model is 82.9\% of the oracle gain, compared with 80.8\% for the baseline.
 This translates to a beam-sweep overhead reduction of up to 15.9\% at $B=5$
 probes (Section~\ref{sec:experiments}), which is a concrete communication-level
 benefit independent of the specific antenna array configuration.
@@ -844,7 +840,7 @@ The expected number of probes per beam-update cycle is:
   \label{eq:eprobes}
 \end{equation}
 For $B=5$: \distill{} requires $5 + 0.1228 \times 59 = 12.2$ expected probes
-versus $5 + 0.1606 \times 59 = 14.5$ for the baseline—a $\mathbf{15.9\%}$
+versus $5 + 0.1606 \times 59 = 14.5$ for the baseline, a $\mathbf{15.9\%}$
 reduction in beam-sweep overhead. At $B=3$: 18.7 vs.\ 20.1 probes ($-7\%$).
 These overhead reductions translate directly to lower pilot overhead and higher
 spectral efficiency in the beam-alignment phase, independent of the specific
@@ -891,10 +887,10 @@ The camera+GPS-only control (bottom row) confirms this finding: a model
 trained \emph{without} LiDAR and radar at all achieves DBA\,=\,0.8064,
 statistically indistinguishable from the full four-modality model (0.8058).
 This control rules out the possibility that the model merely learned to ignore
-LiDAR and radar after training---it does not need them from the outset.
+LiDAR and radar after training. The model does not need them from the outset.
 Table~\ref{tab:main} reports the full deployment profile of this variant:
 21.7\,M trainable parameters, 19.9\,ms inference latency, and a 213.5\,MB
-checkpoint---identical to \ours{}, with 95\,\% CI\,=\,[0.784,\,0.828]
+checkpoint, identical to \ours{}, with 95\,\% CI\,=\,[0.784,\,0.828]
 and $p=0.566$ against the baseline (not significant).
 
 These results should be interpreted as specific to Scenario~32. In other
@@ -954,7 +950,7 @@ Two compounding factors explain the high-beam deficit.
 \emph{Sample scarcity}: only 49 of 635 test samples (8\,\%) lie in the
 high-beam range, offering less statistical support.
 \emph{Distribution shift}: the high-beam range is the primary source of the
-validation-to-test shift---validation contains proportionally more high-index
+validation-to-test shift. Validation contains proportionally more high-index
 samples (mean 21.9 vs.\ 18.6), meaning the model is effectively optimized
 for a regime that is underrepresented at test time.
 
@@ -1024,7 +1020,7 @@ The second column of Figure~\ref{fig:tsne} colors samples by prediction
 correctness: correct predictions appear in green, errors appear in red.
 For \ours{}, errors are dispersed throughout the high-beam periphery.
 For \distill{}, the correct prediction cluster is more compact, with errors
-more often lying on the boundary between adjacent beam groups---evidence that
+more often lying on the boundary between adjacent beam groups, suggesting that
 distillation sharpens the representation without eliminating the inherent
 ambiguity at cluster boundaries.
 
@@ -1044,13 +1040,12 @@ confound: the frozen LiDAR and radar backbones are ResNet-18 networks pretrained
 on ImageNet, whose statistics differ substantially from vehicular LiDAR and radar
 representations. The camera backbone (ResNet-34, also ImageNet-pretrained) shares
 this domain gap, yet camera is clearly necessary. This suggests the gap is not
-the primary explanation---geometric cues in top-down LiDAR and radar projections
+the primary explanation. Geometric cues in top-down LiDAR and radar projections
 are less discriminative for beam selection than the camera's direct view of the
 road geometry and BS placement.
 
 The camera+GPS-only control model, which is trained from scratch without LiDAR/
-radar inputs (not merely zeroed at test time), achieves DBA\,=\,0.8064---
-statistically indistinguishable from the full model (0.8058). This control rules
+radar inputs (not merely zeroed at test time), achieves DBA\,=\,0.8064, which is statistically indistinguishable from the full model (0.8058). This control rules
 out the possibility that the model learned to ``ignore'' LiDAR/radar after
 training with them. In Scenario~32, the two modalities genuinely appear
 redundant given camera and GPS.
@@ -1115,8 +1110,7 @@ better leverage LiDAR information.
 
 \subsection{Implications for Sensor Selection}
 
-The finding that a camera+GPS-only model achieves DBA\,=\,0.8064---equivalent to
-the full four-modality model---has direct deployment implications. LiDAR sensors
+The finding that a camera+GPS-only model achieves DBA\,=\,0.8064, equivalent to the full four-modality model, with direct deployment implications. LiDAR sensors
 used in vehicular perception systems cost substantially more than cameras,
 and radar units add weight, power, and calibration complexity. For
 Scenario-32, our results suggest that deploying a camera+GPS system with
@@ -1174,16 +1168,14 @@ This paper presented \textbf{mmBeamKD}, a framework for sensing-aided mmWave bea
 prediction combining parameter-efficient fusion with cross-modal knowledge
 distillation, evaluated on DeepSense~6G Scenario~32.
 The fusion backbone \ours{} freezes pretrained ResNet encoders and trains only a
-compact cross-attention core with 21.7~M parameters---a 3.6$\times$ reduction
-over the baseline---while matching baseline DBA at $1.66\times$ lower latency
+compact cross-attention core with 21.7~M parameters, a 3.6$\times$ reduction over the baseline, while matching baseline DBA at $1.66\times$ lower latency
 and a 29\,\% smaller checkpoint.
 
 Our main technical contributions are threefold. First, \distill{} (four-modality
 KD student) achieves DBA\,=\,0.8285, a statistically significant improvement of
 $+0.021$ over the baseline ($p = 0.0002$, 95\,\% CI: $[+0.010,\,+0.032]$).
 Second, a probability-space ensemble raises DBA to 0.8353 ($+0.028$,
-$p < 0.0001$) at three-fold inference overhead. Third---and most
-surprisingly---a camera+GPS-only student distilled from the same four-modality
+$p < 0.0001$) at three-fold inference overhead. Third, and most notably, a camera+GPS-only student distilled from the same four-modality
 teacher (\textsc{CamGPS-only-KD}) achieves DBA\,=\,0.8356
 ($+0.028$; $p < 0.0001$; 19.9\,ms), essentially matching the full ensemble.
 Cross-modal distillation from four-modality teachers therefore allows a
