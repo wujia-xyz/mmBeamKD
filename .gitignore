@@ -1,3 +1,12 @@
+# Internal notes (not for public repo)
+AUTO_REVIEW.md
+PAPER_PLAN.md
+add_camgps_kd_to_paper.sh
+paper/PAPER_IMPROVEMENT_LOG.md
+paper/PAPER_IMPROVEMENT_STATE.json
+REVIEW_STATE.json
+figures/
+
 # Model checkpoints (too large for git)
 log/s32_*/best_model.pth
 log/s32_*/best_optim.pth

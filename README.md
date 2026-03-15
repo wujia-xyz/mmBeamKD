@@ -1,111 +1,96 @@
-Please refer our published paper[`Multimodal transformers for wireless communications: A case study in beam prediction
-`](https://www.itu.int/pub/S-JNL-VOL4.ISSUE3-2023-A33) for details. If you use this code, please cite this paper in your reference.
+# mmBeamKD: Parameter-Efficient Multimodal Beam Prediction via Cross-Modal Knowledge Distillation
 
-# DeepSense6G_TII
-The repository contains code, report and presentation for the solution of Team TII for ITU AI/ML in 5G Grand Challenge 2022: [`ML5G-PS-011: Multi Modal Beam Prediction: Towards Generalization`](https://deepsense6g.net/multi-modal-beam-prediction-challenge/)
-## Report and Presentation
-* Full Report: [`ReportTII_TransMMDL_BeamPred.pdf`](./Documents/ReportTII_TransMMDL_BeamPred.pdf)
-* Presentation: [`PresentationTII_TransMMDL_BeamPred.pdf`](./Documents/PresentationTII_TransMMDL_BeamPred.pdf)
+> **Paper**: *Parameter-Efficient Multimodal Beam Prediction for Vehicular mmWave Communications: A Scenario-32 Case Study with Knowledge Distillation*
+>
+> Xin Xie, Jia Wu* — IEEE Transactions on Wireless Communications (under review)
 
+---
 
-## Problem Statement
-The objective of the challenge is to design a machine learning solution that takes a sequence of 5 samples camera, LiDAR, radar sensor data and 2 samples user GPS data, to predict the optimal beam index. 
+## Overview
 
-<figure>
-  <img
-  src="/Materials/prob_state-copy-4.png"
-  alt="The beautiful MDN logo.">
-  <figcaption>Figure 1: Schematic representation of the input data sequence utilized in this challenge tasks</figcaption>
-</figure>
+We propose **TransFuserV5**, a parameter-efficient multimodal transformer for mmWave beam prediction on the [DeepSense 6G](https://deepsense6g.net/) Scenario-32 benchmark (64-beam classification, 1905 training samples). Key contributions:
 
-## Solution  
-We develop a transformer-based multi-modal deep learning framework for sensing assisted beam prediction. We first preprocess sensor data by enhancing and segmenting images, filtering point-clouds, transforming radar signal and user's GPS location. We then employ ResNet CNN to extract the features from image, point-cloud and radar raw data. The GPT transformer is used after each convolutional block to fuse feature maps of different modalities. We utilize data augmentation, soft targets, focal loss, cosine decay schedular, exponential moving average to train the model. Experimental results shows our model produces effective beam prediction generalized to different scenarios. Our framework can be easily extended to different applications of sensing and communicaitons. 
-<figure>
-  <img
-  src="/Materials/transfuser.png"
-  alt="The beautiful MDN logo.">
-  <figcaption>Figure 2: Transformer-based Multi-Modal Sensing assisted Beam Prediction Model</figcaption>
-</figure>
+1. **Frozen-backbone fusion**: ResNet encoders frozen, only 21.7 M parameters trained (vs 78.4 M baseline), 1.66× faster inference.
+2. **Ensemble knowledge distillation**: TransFuserV5-KD achieves **DBA = 0.8285** (+0.021 vs baseline, *p* = 0.0002).
+3. **Cross-modal KD**: A camera+GPS-only student distilled from 4-modality teachers achieves **DBA = 0.8356** (+0.028, *p* < 0.0001) at 19.9 ms — matching the full 3-model ensemble with only 2 sensors.
+4. **Sensor attribution**: Camera and GPS dominate in Scenario-32; LiDAR/radar are redundant.
 
-## Installation
-Clone this repository:
-```sh
-git clone https://github.com/DeepSenseChallengeTeam/DeepSense6G_TII.git
-cd DeepSense6G_TII
-```
-Create the environment:
-```sh
-conda env create -f environment.yml 
-conda activate tfuse 
+## Main Results
+
+| Method | Trainable Params | DBA | Top-1 (%) | Latency |
+|--------|-----------------|-----|-----------|---------|
+| TransFuser (baseline) | 78.4 M | 0.8076 | 32.60 | 33.1 ms |
+| TransFuserV5 | 21.7 M | 0.8058 | 37.64 | 19.9 ms |
+| **TransFuserV5-KD** | 21.7 M | **0.8285** | 35.91 | 19.9 ms |
+| KD + Ensemble | — | 0.8353 | 38.11 | 80 ms |
+| **CamGPS-only-KD** | 21.7 M | **0.8356** | 39.53 | 19.9 ms |
+
+All comparisons use paired bootstrap significance testing (5000 resamples).
+
+## Requirements
+
+```bash
+conda env create -f environment.yml
+conda activate deepsense
 ```
 
-## Data Preprocessing
-We enhance and augment the multi-modal sensor data provided by the challenge. The final data necessary to reproduce our experiment can be downloaded directly from this link: [`MultiModalSensorPreprocessedData`](https://drive.google.com/drive/folders/1zvOOJpGodEnjqvAiAeXkzOdjWmz1semF?usp=sharing). After downloading, unzip and put these three datasets under [Dataset](./Dataset/).
+## Dataset
 
-The dataset and pretrained model are structured as follows:
-```
-- DeepSense6G_TII
-    - Dataset
-        - Adaptation_dataset_multi_modal
-        - Multi_Modal
-        - Multi_Modal_Test
-        - scenario31.jpg
-        ...
-    - log
-        - test
-            -best_model.pth
-            -args.txt
-        ...
+Download [DeepSense 6G Scenario-32](https://deepsense6g.net/scenario_32/) and place under `Dataset/`. Update `data_root` in `config_seq.py`.
+
+## Training
+
+**Baseline:**
+```bash
+CUDA_VISIBLE_DEVICES=0,1 torchrun --nproc_per_node=2 train_s32.py --id s32_baseline
 ```
 
-We develop following tools to preprocess the original dataset for training our model: 
-
-* [`Lidar_data_preprocessing.py`](./Data_Preprocessing/Lidar_data_preprocessing.py): filter the backgrounds and retain the mobile objects.
-* [`Radar_data_preprocessing.py`](./Data_Preprocessing/Radar_data_preprocessing.py): generate Range-Velocity and Range-Angle map features.
-* [`Image_data_augmentation.py`](./Data_Augmentation/Image_data_augmentation.py): chagne image brightness, contrast, gamma, hue, saturation, sharpness, bluring. 
-* [`Lidar_data_augmentation.py`](./Data_Augmentation/Lidar_data_augmentation.py): change point-cloud by down sampling, adding noise. 
-* [`radar_data_augmentation.py`](./Data_Augmentation/radar_data_augmentation.py): change radar signals by adding noise in the spectral domain.
-
-## Training and Evaluation
-The framework can be experimented with different approaches and hyperparameters for training and data preprocessing. The configurations and descriptions can be viewed as follows:
+**TransFuserV5:**
+```bash
+CUDA_VISIBLE_DEVICES=0,1 torchrun --nproc_per_node=2 train_s32_v5.py --id s32_v5b
 ```
-python3 train2_seq.py --help
+
+**TransFuserV5-KD (ensemble distillation):**
+```bash
+RANK=0 WORLD_SIZE=1 LOCAL_RANK=0 MASTER_ADDR=127.0.0.1 MASTER_PORT=29603 \
+  python train_distill.py --id s32_kd --epochs 100
 ```
-The core code of our solution can be found in the following scripts:
 
-* [`train2_seq.py`](./train2_seq.py): main engine for multi-modal deep learning.
-* [`model2_seq.py`](./model2_seq.py): transformer based sensing aid beam prediction model.
-* [`data2_seq.py`](./data2_seq.py): data preparation for training and evaluation.
-* [`config_seq.py`](./config_seq.py): configuration of hyperparameters and paths.
-
-A minimal example of running the training script to reproduce our best submitted model: 
-```sh
-python3 train2_seq.py --id test --logdir log --device cuda --epochs 150 --lr 1e-4 --batch_size 12 --add_velocity 1 --add_mask 0 --enhanced 1 --filtered 0 --loss focal --scheduler 1 --load_previous_best 0 --temp_coef 1 --train_adapt_together 1 --finetune 0 --Test 0 --augmentation 1 --angle_norm 1 --custom_FoV_lidar 1 --add_seg 0 --ema 1 --flip 0
+**CamGPS-only-KD (cross-modal distillation):**
+```bash
+RANK=0 WORLD_SIZE=1 LOCAL_RANK=0 MASTER_ADDR=127.0.0.1 MASTER_PORT=29604 \
+  python train_distill_camgps.py --id s32_camgps_kd --epochs 60
 ```
-The best pretrained model can be downloaded from this link: [`best_model.pth`](https://tiiuae-my.sharepoint.com/:u:/g/personal/yu_tian_tii_ae/ESWmKoHeKsxJorYTr6MxgjQBlCXrRQoSrgLDxs7ljxEr_g?e=bPrCgS) 
 
-The following script reproduce our best result, by saving the pretrained model in './log/test' folder:
-```sh
-python3 train2_seq.py --id test --logdir log --Test 1 --add_velocity 1 --add_mask 0 --enhanced 1 --filtered 0 --angle_norm 1 --custom_FoV_lidar 1 --add_seg 0
+## Evaluation & Analysis
+
+```bash
+python eval_ensemble_corrected.py      # Ensemble evaluation
+python analysis_beam_bin.py            # Per-beam-bin DBA + modality ablation
+python analysis_bootstrap_ci.py        # Bootstrap confidence intervals
+python analysis_val_test_shift.py      # Distribution shift analysis
 ```
-Our best solution is save in [`beam_pred.csv`](./beam_pred.csv).
 
-The best DBA score of each scenario on the test dataset is as follows:
-|Scenario 31|Scenario 32|Scenario 33|Scenario 34|Overall|
-|:-:|:-:|:-:|:-:|:-:|
-|0.5331|0.7173|0.7910|0.8209|0.6671|
+## Paper
 
+The full paper draft is in `paper/main.pdf`. Figures can be regenerated with `paper/figures/gen_all_figs.py`.
 
-## Future work
-We are experimenting further approaches to improve the solutions such as semi-supervised learning, contrastive learning. We also plan to extend the framework for wider applications of integrated sensing and communications. 
+## Citation
 
-## Contact
+```bibtex
+@article{xie2026mmBeamKD,
+  title   = {Parameter-Efficient Multimodal Beam Prediction for Vehicular mmWave
+             Communications: A Scenario-32 Case Study with Knowledge Distillation},
+  author  = {Xie, Xin and Wu, Jia},
+  journal = {IEEE Transactions on Wireless Communications},
+  year    = {2026},
+  note    = {Under review}
+}
+```
 
-* Qiyang Zhao, Yu Tian, Zine el abidine Kherroubi, Fouzi Boukhalfa
-* Technology Innovation Institute, 9639 Masdar City, Abu Dhabi, UAE
-* {qiyang.zhao, yu.tian, zine.kherroubi, fouzi.boukhalfa}@tii.ae
+## Acknowledgment
 
-## Reference
-* [TransFuser](https://github.com/autonomousvision/transfuser): Imitation with Transformer-Based Sensor Fusion for Autonomous Driving
-* [MIRNet](https://github.com/swz30/MIRNet): Learning Enriched Features for Ream Image Resotration and Enhancement
-* [PIDNet](https://github.com/XuJiacong/PIDNet): A Real-time Semantic Segmentation Network Inspired form PID Controller
+This work was supported in part by the Sichuan Natural Science Foundation under Grant 2026NSFSC0580.
+
+---
+*Corresponding author: Jia Wu (wujiahj@126.com)*
