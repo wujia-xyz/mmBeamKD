@@ -109,19 +109,20 @@ first statistically significant single-model DBA improvement on this benchmark,
 testing, distribution-shift analysis, and a beam-probing overhead metric---
 that transfers to other scenarios.
 
-This paper addresses all three gaps on DeepSense~6G Scenario~32---a single urban
-intersection site with 1905 training, 635 validation, and 635 test sequences.
-We propose \ours{}, which replaces the baseline's eight-layer GPT transformer
-stack with a compact two-layer cross-attention fusion module applied to frozen
-pretrained ResNet backbone features. The design reduces trainable parameters
-from 78.4~M to 21.7~M without retraining the heavy visual encoders, cuts
-inference latency by $1.66\times$, and shrinks the deployment checkpoint by 29\%.
-We then apply knowledge distillation from a heterogeneous ensemble teacher to
-obtain \distill{}, the first single model to significantly outperform the
-baseline on DBA (the distance-based accuracy metric). Finally, we conduct a
-modality ablation that reveals an unexpected finding: in Scenario~32,
-\emph{camera and GPS are nearly sufficient for full performance}, while LiDAR
-and radar contribute negligibly.
+This paper presents \textbf{mmBeamKD}, which addresses all three gaps on
+DeepSense~6G Scenario~32---a single urban intersection site with 1905 training,
+635 validation, and 635 test sequences.
+mmBeamKD comprises two stages: (i)~\ours{}, a parameter-efficient fusion backbone
+that replaces the baseline's eight-layer GPT transformer with a compact two-layer
+cross-attention module applied to frozen pretrained ResNet features, reducing
+trainable parameters from 78.4~M to 21.7~M and cutting inference latency by
+$1.66\times$; and (ii)~cross-modal knowledge distillation from a heterogeneous
+four-model ensemble teacher, yielding both a four-modality student (\distill{})
+and a camera+GPS-only student (\textsc{CamGPS-only-KD}) that matches the full
+ensemble at 19.9~ms. Modality ablation reveals an unexpected finding: in
+Scenario~32, \emph{camera and GPS are nearly sufficient for full performance},
+while LiDAR and radar contribute negligibly---a result that cross-modal KD
+exploits directly.
 
 The contributions of this paper are as follows:
 
@@ -1169,12 +1170,13 @@ therefore the safer choice for vehicular deployments with unknown BS geometry.
 \section{Conclusion}
 \label{sec:conclusion}
 
-This paper studied sensing-aided mmWave beam prediction in the scarce-data
-setting of DeepSense~6G Scenario~32. We proposed \ours{}, a parameter-efficient
-transformer that freezes pretrained ResNet encoders and trains only a compact
-cross-attention fusion core with 21.7~M parameters---a 3.6$\times$ reduction over
-the baseline. \ours{} matches the baseline DBA while running $1.66\times$ faster
-and requiring a 29\,\% smaller deployment checkpoint.
+This paper presented \textbf{mmBeamKD}, a framework for sensing-aided mmWave beam
+prediction combining parameter-efficient fusion with cross-modal knowledge
+distillation, evaluated on DeepSense~6G Scenario~32.
+The fusion backbone \ours{} freezes pretrained ResNet encoders and trains only a
+compact cross-attention core with 21.7~M parameters---a 3.6$\times$ reduction
+over the baseline---while matching baseline DBA at $1.66\times$ lower latency
+and a 29\,\% smaller checkpoint.
 
 Our main technical contributions are threefold. First, \distill{} (four-modality
 KD student) achieves DBA\,=\,0.8285, a statistically significant improvement of
